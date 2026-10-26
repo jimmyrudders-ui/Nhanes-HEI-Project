@@ -3,7 +3,7 @@ source("R/01_import_data.R")
 
 #Join food codes and calculate FPED values using FPED equivalents
 foods_fped <- DI_IF_FD %>% #Begin with "Dietary Interview - Individual Foods, First Day"
-  left_join(DI_TS_FC, by = c("dr1ifdcd" = "drxfdcd")) %>% #Joins the "Dietary Interview Technical Support File - Food Codes"
+  left_join(DI_TS_FC, by = c("dr1ifdcd" = "drxfdcd")) %>% #Joins the "Dietary Interview Technical Support File - Food Codes" (not strictly needed, only needed to check if foods make sense)
   left_join(fped_2017_2020, by = c("dr1ifdcd" = "foodcode")) %>% #Joins the FPED 100-gram-equivalent information
   mutate( #Calculate Components of HEI using grams from DI_IF_FD and 100 gram equivalents from fped_2017_2020
     total_fruits = f_total_cup_eq * dr1igrms / 100,
@@ -17,7 +17,6 @@ foods_fped <- DI_IF_FD %>% #Begin with "Dietary Interview - Individual Foods, Fi
                                     pf_soy_oz_eq + pf_nutsds_oz_eq + pf_legumes_oz_eq) * dr1igrms / 100,
     refined_grains = g_refined_oz_eq * dr1igrms / 100,
     sodium = dr1isodi,
-    oils_g = oils_grams * dr1igrms / 100,
     added_sugars_tsp = add_sugars_tsp_eq * dr1igrms / 100
   )
 
@@ -28,23 +27,21 @@ nhanes_diet_per_person <- foods_fped %>% #Begin with foods_fped (contains HEI co
   summarise( #calculate per-person HEI components as well as other useful nutrition info
     
     #general nutrition totals
-    n_foods = n(),
-    total_grams = sum(dr1igrms, na.rm = TRUE),
+    n_foods = n(), #not strictly needed for HEI
+    total_grams = sum(dr1igrms, na.rm = TRUE), #not strictly needed for HEI
     
-    calories = sum(dr1ikcal, na.rm = TRUE),
-    protein_g = sum(dr1iprot, na.rm = TRUE),
-    carbs_g = sum(dr1icarb, na.rm = TRUE),
-    total_fat_g = sum(dr1itfat, na.rm = TRUE),
+    calories = sum(dr1ikcal, na.rm = TRUE), #not strictly needed for HEI
+    protein_g = sum(dr1iprot, na.rm = TRUE), #not strictly needed for HEI
+    carbs_g = sum(dr1icarb, na.rm = TRUE), #not strictly needed for HEI
+    total_fat_g = sum(dr1itfat, na.rm = TRUE), #not strictly needed for HEI
     
     sat_fat_g = sum(dr1isfat, na.rm = TRUE),
     mono_fat_g = sum(dr1imfat, na.rm = TRUE),
     poly_fat_g = sum(dr1ipfat, na.rm = TRUE),
     
-    fiber_g = sum(dr1ifibe, na.rm = TRUE),
-    sugar_g = sum(dr1isugr, na.rm = TRUE),
-    alcohol_g = sum(dr1ialco, na.rm = TRUE),
-    cholesterol_mg = sum(dr1ichol, na.rm = TRUE),
-    total_oils_g = sum(oils_g, na.rm = TRUE),
+    fiber_g = sum(dr1ifibe, na.rm = TRUE), #not strictly needed for HEI
+    alcohol_g = sum(dr1ialco, na.rm = TRUE), #not strictly needed for HEI
+    cholesterol_mg = sum(dr1ichol, na.rm = TRUE), #not strictly needed for HEI
     
     #HEI Adequacy components
     total_fruits_cup = sum(total_fruits, na.rm = TRUE),
@@ -79,7 +76,7 @@ nhanes_diet_per_person <- foods_fped %>% #Begin with foods_fped (contains HEI co
     refined_grains_oz = sum(refined_grains, na.rm = TRUE),
     refined_grains_oz_per_1000kcal = refined_grains_oz * (1000 / calories),
     
-    sodium_mg = sum(dr1isodi, na.rm = TRUE),
+    sodium_mg = sum(sodium, na.rm = TRUE),
     sodium_mg_per_1000kcal = sodium_mg * (1000 / calories),
     
     added_sugars_cals = sum(added_sugars_tsp, na.rm = TRUE) * 16,

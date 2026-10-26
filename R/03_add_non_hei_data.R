@@ -28,6 +28,11 @@ health_metrics_insurance <- health_metrics_insurance %>%
       covered_by_insurance == 1 ~ 1,
       covered_by_insurance == 2 ~ 0,
       .default = NA
+    ),
+    insurance_status = case_when( # Insured = covered by some insurance, Uninsured - completely uncovered
+      insurance_status_binary == 1 ~ "Insured",
+      insurance_status_binary == 0 ~ "Uninsured",
+      .default = NA
     )
   )
 
